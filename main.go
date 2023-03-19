@@ -4,10 +4,12 @@ import (
 	"fmt"
 
 	"github.com/ptonlix/spokenai/configs"
+	"github.com/ptonlix/spokenai/internal/engine/console"
 	"github.com/ptonlix/spokenai/pkg/env"
 	"github.com/ptonlix/spokenai/pkg/logger"
 	"github.com/ptonlix/spokenai/pkg/shutdown"
 	"github.com/ptonlix/spokenai/pkg/timeutil"
+	"go.uber.org/zap"
 )
 
 func main() {
@@ -29,9 +31,17 @@ func main() {
 	defer func() {
 		_ = accessLogger.Sync()
 	}()
+	s, _ := console.NewConsoleServer(accessLogger)
 
 	// 优雅关闭
 	shutdown.NewHook().Close(
-	// 关闭
+
+		func() {
+			if s.La != nil {
+				if err := s.La.Close(); err != nil {
+					accessLogger.Error("La close err", zap.Error(err))
+				}
+			}
+		},
 	)
 }

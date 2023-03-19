@@ -22,13 +22,13 @@
 
   [mysql.read]
     addr = "127.0.0.1:3306"
-    name = "go_gin_api"
+    name = "spokenai"
     pass = "123456789"
     user = "root"
 
   [mysql.write]
     addr = "127.0.0.1:3306"
-    name = "go_gin_api"
+    name = "spokenai"
     pass = "123456789"
     user = "root"
 
@@ -39,3 +39,24 @@
   minidleconns = 5
   pass = ""
   poolsize = 10
+
+[openai]
+
+  [openai.base]
+    apikey = ""
+    apihost = "http://43.156.48.63/v1" 
+
+  [openai.chat]
+    chatmodel =  "gpt-3.5-turbo"
+    chatmaxtoken = 2048
+    chattemperature = 0.7
+    chattopp = 1
+
+  [openai.audio]
+    audiomodel = "whisper-1"
+  
+[file]
+  [file.history]
+    path = "./data/history/"
+  [file.audio]
+    path = "./data/audio/"

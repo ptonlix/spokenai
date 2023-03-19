@@ -63,6 +63,31 @@ type Config struct {
 	Language struct {
 		Local string `toml:"local"`
 	} `toml:"language"`
+
+	OpenAi struct {
+		Chat struct {
+			ChatModel       string `toml:"chatModel"`
+			ChatMaxToken    int    `toml:"chatMaxtoken"`
+			ChatTemperature int    `toml:"chatTemperature"`
+			ChatTopP        int    `toml:"chatTopP"`
+		} `toml:"chat"`
+		Audio struct {
+			AudioModel string `toml:"audioModel"`
+		} `toml:"audio"`
+		Base struct {
+			ApiKey  string `toml:"apikey"`
+			ApiHost string `toml:"apihost"`
+		} `toml:"base"`
+	} `toml:"openai"`
+
+	File struct {
+		History struct {
+			Path string `toml:"path"`
+		} `toml:"history"`
+		Audio struct {
+			Path string `toml:"path"`
+		} `toml:"audio"`
+	}
 }
 
 var (
