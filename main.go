@@ -32,7 +32,7 @@ func main() {
 		_ = accessLogger.Sync()
 	}()
 	s, _ := console.NewConsoleServer(accessLogger)
-
+	s.ListenAndServe()
 	// 优雅关闭
 	shutdown.NewHook().Close(
 

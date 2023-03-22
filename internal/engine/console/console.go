@@ -12,6 +12,7 @@ import (
 	"github.com/ptonlix/spokenai/internal/pkg/nettest"
 	"github.com/ptonlix/spokenai/internal/pkg/rocket"
 	"github.com/ptonlix/spokenai/internal/pkg/role"
+	hook "github.com/robotn/gohook"
 	"go.uber.org/zap"
 )
 
@@ -98,7 +99,35 @@ func NewConsoleServer(logger *zap.Logger) (*Server, error) {
 	return &Server{La: r}, nil
 }
 
+func add() {
+	fmt.Println("--- Please press ctrl + shift + q to stop hook ---")
+	hook.Register(hook.KeyDown, []string{"q", "ctrl", "shift"}, func(e hook.Event) {
+		fmt.Println("ctrl-shift-q")
+		hook.End()
+	})
+
+	fmt.Println("--- Please press w---")
+	hook.Register(hook.KeyDown, []string{"w"}, func(e hook.Event) {
+		fmt.Println("w")
+	})
+
+	fmt.Println("--- Please press space down---")
+	hook.Register(hook.KeyDown, []string{"space"}, func(e hook.Event) {
+		fmt.Println("space down")
+	})
+
+	fmt.Println("--- Please press space up---")
+	hook.Register(hook.KeyHold, []string{"space"}, func(e hook.Event) {
+		fmt.Println("space up")
+	})
+
+	s := hook.Start()
+	<-hook.Process(s)
+}
+
 func (s *Server) ListenAndServe() error {
 	// 唤醒语音输入，转换文字，输出
+	//praudio.RecordAndSaveWithInterruptShow("output.wav")
+	add()
 	return nil
 }
