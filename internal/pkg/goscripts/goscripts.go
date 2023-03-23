@@ -1,3 +1,0 @@
-package goscripts
-
-func ExecScripts
