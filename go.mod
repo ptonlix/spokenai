@@ -14,6 +14,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/robotn/gohook v0.40.0
 	github.com/sashabaranov/go-openai v1.5.2
+	github.com/shopspring/decimal v1.3.1
 	github.com/speps/go-hashids v2.0.0+incompatible
 	github.com/spf13/viper v1.15.0
 	go.uber.org/zap v1.24.0

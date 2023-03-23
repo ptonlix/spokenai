@@ -130,7 +130,7 @@ func New(logger *zap.Logger, options ...Option) (Launcher, error) {
 
 	// 初始化聊天数据
 	index, _ := strconv.Atoi(opt.roleId)
-	if err := la.SaveHistory(openai.ChatMessageRoleSystem, (*role.Get())[index]); err != nil {
+	if err := la.SaveHistory(openai.ChatMessageRoleSystem, role.GetForContent(index)); err != nil {
 		return nil, err
 	}
 
@@ -244,6 +244,14 @@ func (ol *openaiLauncher) Chat(content string) (string, int, error) {
 
 	if err != nil {
 		ol.logger.Error("ChatCompletion error:", zap.String("error", fmt.Sprintf("%+v", err)))
+		return "", -1, err
+	}
+
+	if err := ol.SaveHistory(openai.ChatMessageRoleUser, content); err != nil {
+		return "", -1, err
+	}
+
+	if err := ol.SaveHistory(openai.ChatMessageRoleAssistant, resp.Choices[0].Message.Content); err != nil {
 		return "", -1, err
 	}
 

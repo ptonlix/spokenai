@@ -17,6 +17,7 @@ type Ioer interface {
 
 	SlowPrint(string)
 	GetInput(...interface{})
+	Flush()
 }
 
 func NewIoer() Ioer {
@@ -58,4 +59,8 @@ func (c *Console) SlowPrint(content string) {
 
 func (c *Console) GetInput(v ...interface{}) {
 	fmt.Scanln(v...)
+}
+
+func (c *Console) Flush() {
+	fmt.Scanf("%s\n", new(string))
 }

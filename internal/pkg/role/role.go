@@ -9,6 +9,7 @@ type Role map[int]string
 
 const (
 	prefix = "You are "
+	note   = " Notes:Spoken expression, answer as brief as possible."
 )
 
 var systemRole = make(Role)
@@ -26,7 +27,7 @@ func Get() *Role {
 }
 
 func GetForContent(roleindex int) string {
-	return prefix + systemRole[roleindex]
+	return prefix + systemRole[roleindex] + note
 }
 
 func PrintRole(w io.Writer) {

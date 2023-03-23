@@ -43,7 +43,7 @@
 [openai]
 
   [openai.base]
-    apikey = ""
+    apikey = "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"
     apihost = "http://43.156.48.63/v1" 
 
   [openai.chat]
