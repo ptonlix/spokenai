@@ -1,0 +1,67 @@
+
+[hashids]
+  length = 12
+  secret = "6ab6122836cfef95f8db"
+
+[language]
+  local = "zh-cn"
+
+[mail]
+  host = "smtp.163.com"
+  pass = ""
+  port = 465
+  to = ""
+  user = ""
+
+[mysql]
+
+  [mysql.base]
+    connmaxlifetime = 60
+    maxidleconn = 60
+    maxopenconn = 10
+
+  [mysql.read]
+    addr = "127.0.0.1:3306"
+    name = "spokenai"
+    pass = "123456789"
+    user = "root"
+
+  [mysql.write]
+    addr = "127.0.0.1:3306"
+    name = "spokenai"
+    pass = "123456789"
+    user = "root"
+
+[redis]
+  addr = "127.0.0.1:6379"
+  db = "0"
+  maxretries = 3
+  minidleconns = 5
+  pass = ""
+  poolsize = 10
+
+[openai]
+
+  [openai.base]
+    apikey = ""
+    apihost = "https://api.openai.com/v1" 
+
+  [openai.chat]
+    chatmodel =  "gpt-3.5-turbo"
+    chatmaxtoken = 2048
+    chattemperature = 0.7
+    chattopp = 1
+
+  [openai.audio]
+    audiomodel = "whisper-1"
+  
+[file]
+  [file.history]
+    path = "./data/history/"
+  [file.audio]
+    [file.audio.record]
+      path = "./data/audio/record/"
+    [file.audio.play]
+      path = "./data/audio/play/"
+      enable =  0
+      ttshost = "http://127.0.0.1:5000"
