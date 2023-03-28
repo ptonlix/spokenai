@@ -2,7 +2,7 @@
 English | [简体中文](./README-zh.md)
 <p>
 	<p align="center">
-		<img height=280 src="https://img.gejiba.com/images/8169bc02b80f6f5985f52dd1acb2b5f1.png">
+		<img height=280 src="https://storage.googleapis.com/gopherizeme.appspot.com/gophers/c783b6ca0e3c10aa7d9b29c4cc9d1526c5281f34.png">
 	</p>
 	<p align="center">
 		<font size=6 face="宋体">英语口语练习AI助手</font>
@@ -45,7 +45,7 @@ ToDoList：
 
 ## 三.系统架构
 <p align="center">
-      <img height="300px" src="./docs/images/struction.png" title="gogeek">
+      <img height="400px" src="./docs/images/struction.png" title="gogeek">
 </p>
 
 - portaudio:  PortAudio是一个跨平台的音频I/O库，提供了简单的API，使得开发人员可以在不同的平台上以相似的方式访问音频硬件。它支持Windows、Mac OS X、Linux和其他主要的操作系统。PortAudio支持多种音频API，包括ASIO、Core Audio、DirectSound、MME / WDM、ALSA和OSS。PortAudio还包括一个流接口，允许开发人员以相同的方式使用不同的音频API和硬件。   
@@ -64,7 +64,7 @@ ToDoList：
 ## 四.流程设计
 
 <p align="center">
-      <img height="300px" src="./docs/images/sysflow.png" title="gogeek">
+      <img height="500px" src="./docs/images/sysflow.png" title="gogeek">
 </p>
 
 简单概括总体流程有三个步骤，一是输入个人信息  二是录音转文字，三是发送消息，进行对话交互
@@ -72,6 +72,90 @@ ToDoList：
 由于是通过终端访问，主要监听键盘事件，进行不同操作
 
 如 按W键会开始录音，录音过程中按Q停止录音，待录音翻译完成后，按Ctrl+shift+enter发送消息
+
+## 部署运行
+
+### 编译运行
+
+一.安装依赖 portaudio
+
+```bash
+
+1. Windows: [http://www.portaudio.com/download.html](http://www.portaudio.com/download.html)
+2. MacOS: brew install portaudio
+3. Linux: apt-get install portaudio19-dev
+```
+
+二. 编译代码
+
+```bash
+# 下载源码
+git clone https://github.com/ptonlix/spokenai.git
+cd spokenai
+
+# 修改配置文件
+edit fat_config.toml
+
+# 编译
+go build
+
+# 查看命令
+./spokenai -h
+
+# 运行
+./spokenai
+```
+
+三.运行TensorflowTTS
+
+```
+# 拉取作者已构建的镜像
+docker pull ptonlix/tensorflowtts:1.0.9
+# 运行镜像
+docker run -itd -p 5000:5000 --name spokenai-tts ptonlix/tensorflowtts:1.0.9
+```
+### 配置文件说明
+
+```bash
+[openai]
+
+  [openai.base]
+    apikey = ""
+    apihost = "https://api.openai.com/v1" 
+
+  [openai.chat]
+    chatmodel =  "gpt-3.5-turbo"
+    chatmaxtoken = 2048
+    chattemperature = 0.7
+    chattopp = 1
+
+  [openai.audio]
+    audiomodel = "whisper-1"
+  
+[file]
+  [file.history]
+    path = "./data/history/"
+  [file.audio]
+    [file.audio.record]
+      path = "./data/audio/record/"
+    [file.audio.play]
+      path = "./data/audio/play/"
+      enable =  0
+      ttshost = "http://127.0.0.1:5000"
+```
+
+采用toml配置文件格式， 主要分为两部分
+
+1. openai配置，主要需要填写自己的apikey和如果走代理则修改apihost地址。其他都是模型配置按需修改即可
+2. file配置，由于是终端版本，采用文件存储的形式较为方便
+    - history为聊天上下文存储
+    - audio为音频存储
+        - record为录音文件存储目录
+        - play为语言合成文件存储目录
+        - enable 可以选为是否开启语音合成，默认不开启,开启需要运行tensorflowtts。
+        - ttshost 为tts api服务地址
+
+
 <p align="center">
   <b>SPONSORED BY</b>
 </p>
