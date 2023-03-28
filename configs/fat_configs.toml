@@ -43,8 +43,8 @@
 [openai]
 
   [openai.base]
-    apikey = "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"
-    apihost = "http://43.156.48.63/v1" 
+    apikey = ""
+    apihost = "https://api.openai.com/v1" 
 
   [openai.chat]
     chatmodel =  "gpt-3.5-turbo"
