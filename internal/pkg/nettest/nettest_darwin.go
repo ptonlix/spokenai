@@ -46,7 +46,7 @@ func (t *TestClient) LoopTest() (*TestResult, error) {
 			return nil, err
 		}
 		if pinger.Statistics().PacketsRecv < sendcount-1 {
-			t.logger.Error("Network Test Error:", zap.String("error", fmt.Sprintf("sendcount:%d recvcount%d", sendcount, pinger.Statistics().PacketsRecv)))
+			t.logger.Error("Network Test Error:", zap.String("error", fmt.Sprintf("host:%s sendcount:%d recvcount%d", host, sendcount, pinger.Statistics().PacketsRecv)))
 			return &TestResult{host: host, result: false}, nil
 		}
 	}

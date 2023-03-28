@@ -144,12 +144,12 @@ func (m *Manager) CallTTSserver(text string) error {
 	if !m.opt.enablePlay {
 		return nil
 	}
+	m.playCount += 1
 	err := m.ttsclient.TextToSpeechSaveWav(text, m.GetPlayAudio())
 	if err != nil {
 		m.logger.Error("Call TTSserver error:", zap.String("error", fmt.Sprintf("%+v", err)))
 		return err
 	}
-	m.playCount += 1
 	return nil
 }
 
