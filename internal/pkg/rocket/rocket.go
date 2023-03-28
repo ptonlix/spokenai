@@ -225,7 +225,6 @@ func (ol *openaiLauncher) assemble(role, content string) ([]openai.ChatCompletio
 	total = append(total, newmsg)
 	return total, nil
 }
-
 func (ol *openaiLauncher) Chat(content string) (string, int, error) {
 	// 组装对话
 	array, err := ol.assemble(openai.ChatMessageRoleUser, content)

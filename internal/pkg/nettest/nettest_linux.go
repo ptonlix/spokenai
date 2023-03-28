@@ -38,14 +38,14 @@ func (t *TestClient) LoopTest() (*TestResult, error) {
 			t.logger.Error("Network Test Error:", zap.String("error", fmt.Sprintf("%+v", err)))
 			return nil, err
 		}
-		pinger.Count = 3
-		pinger.Timeout = time.Second * 5
+		pinger.Count = sendcount
+		pinger.Timeout = timeout
 		err = pinger.Run() // Blocks until finished.
 		if err != nil {
 			t.logger.Error("Network Test Error:", zap.String("error", fmt.Sprintf("%+v", err)))
 			return nil, err
 		}
-		if pinger.Statistics().PacketsRecv != sendcount {
+		if pinger.Statistics().PacketsRecv < sendcount-1 {
 			t.logger.Error("Network Test Error:", zap.String("error", fmt.Sprintf("sendcount:%d recvcount%d", sendcount, pinger.Statistics().PacketsRecv)))
 			return &TestResult{host: host, result: false}, nil
 		}

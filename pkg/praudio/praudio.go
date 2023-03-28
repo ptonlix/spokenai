@@ -198,7 +198,69 @@ func RecordAndSaveWithInterrupt(filename string) error {
 	return nil
 }
 
-func RecordAndSaveWithShow(filename string, sig <-chan int) error {
+func RecordAndSaveWithContext(ctx context.Context, filename string) error {
+	portaudio.Initialize()
+	defer portaudio.Terminate()
+	done := make(chan struct{})
+
+	// 初始化音频录制
+	recorder, err := NewAudioRecorder()
+	if err != nil {
+		return fmt.Errorf("failed to initialize audio recorder: %v", err)
+	}
+	defer recorder.Stop()
+
+	// 初始化进度条
+	progressBar := pb.Full.Start(maxRecordSize)
+	progressBar.SetRefreshRate(time.Millisecond * 200) // 设置刷新率
+	progressBar.Set(pb.Bytes, true)                    // 显示录制音频的数据量
+
+	// 记录开始时间
+	startTime := time.Now()
+
+	// 创建Context，用于取消录音
+	ctxnew, cancel := context.WithCancel(ctx)
+
+	// 开启协程进行录音
+	samples := make([]int32, 0)
+	go func() {
+		defer close(done)
+		for {
+			select {
+			case <-ctxnew.Done():
+				return
+			case data := <-recorder.dataCh:
+				// 将音频数据追加到samples
+				samples = append(samples, data...)
+
+				// 当达到最长录音时间时，取消录音
+				if time.Since(startTime) >= maxRecordDuration {
+					cancel()
+					break
+				}
+
+				// 更新录制音频的数据量
+				dataSize := int64(len(samples)) * int64(reflect.TypeOf(samples).Elem().Size())
+				progressBar.Add(int(dataSize)) // 更新进度条
+				progressBar.SetCurrent(dataSize)
+			}
+		}
+	}()
+
+	// 等待录音完成或接收到中断信号
+	<-done
+
+	progressBar.Finish()
+
+	// 保存音频数据到WAV文件
+	if err := saveToWavFile(filename, int32SliceToIntSlice(samples)); err != nil {
+		return fmt.Errorf("failed to save audio to file: %v", err)
+	}
+
+	return nil
+}
+
+func RecordAndSaveWithChannel(filename string, sig <-chan struct{}) error {
 	portaudio.Initialize()
 	defer portaudio.Terminate()
 	done := make(chan struct{})
@@ -263,6 +325,10 @@ func RecordAndSaveWithShow(filename string, sig <-chan int) error {
 	}
 
 	return nil
+}
+
+func BackupWAVfile(filename string) error {
+	return os.Rename(filename, filename+time.Now().Format("20060102150405"))
 }
 
 func RecordAndSaveWithInterruptShow(filename string) error {

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/ptonlix/spokenai/configs"
@@ -31,17 +32,17 @@ func main() {
 	defer func() {
 		_ = accessLogger.Sync()
 	}()
-	s, _ := console.NewConsoleServer(accessLogger)
+	s, err := console.NewConsoleServer(accessLogger, context.Background())
+	if err != nil {
+		accessLogger.Error("New ConsoleServer error: ", zap.String("error", fmt.Sprintf("%+v", err)))
+		panic(err)
+	}
 	s.ListenAndServe()
 	// 优雅关闭
 	shutdown.NewHook().Close(
 
 		func() {
-			if s.La != nil {
-				if err := s.La.Close(); err != nil {
-					accessLogger.Error("La close err", zap.Error(err))
-				}
-			}
+			s.Close()
 		},
 	)
 }

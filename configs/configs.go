@@ -3,6 +3,7 @@ package configs
 import (
 	"bytes"
 	_ "embed"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -85,7 +86,14 @@ type Config struct {
 			Path string `toml:"path"`
 		} `toml:"history"`
 		Audio struct {
-			Path string `toml:"path"`
+			Record struct {
+				Path string `toml:"path"`
+			} `toml:"record"`
+			Play struct {
+				Enable  bool   `toml:"enable"`
+				Path    string `toml:"path"`
+				TtsHost string `toml:"ttshost"`
+			} `toml:"play"`
 		} `toml:"audio"`
 	}
 }
@@ -129,7 +137,7 @@ func init() {
 	if err := viper.Unmarshal(config); err != nil {
 		panic(err)
 	}
-
+	fmt.Println(config)
 	viper.SetConfigName(env.Active().Value() + "_configs")
 	viper.AddConfigPath("./configs")
 

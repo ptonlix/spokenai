@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 )
 
 var (
@@ -27,6 +28,26 @@ type ReadLineFromEnd struct {
 func IsExists(path string) (os.FileInfo, bool) {
 	f, err := os.Stat(path)
 	return f, err == nil || os.IsExist(err)
+}
+
+// RemoveContents 删除目录下文件
+func RemoveContents(dir string) error {
+	d, err := os.Open(dir)
+	if err != nil {
+		return err
+	}
+	defer d.Close()
+	names, err := d.Readdirnames(-1)
+	if err != nil {
+		return err
+	}
+	for _, name := range names {
+		err = os.RemoveAll(filepath.Join(dir, name))
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // NewReadLineFromEnd 从末尾读取文件内容
