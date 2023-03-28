@@ -33,6 +33,7 @@ const (
 	startMenu  = 0
 	speakMenu  = 1
 	chatMenu   = 2
+	endMenu    = 3
 )
 
 type Resource struct {
@@ -129,7 +130,7 @@ func NewConsoleServer(logger *zap.Logger, ctx context.Context) (*Server, error) 
 		console.PrintlnRed("\r错误: 网络连通性检测失败，请检查日志")
 		return nil, errors.New("network link failed")
 	} else {
-		console.PrintlnRed("\rGood: Network connectivity detection is ok\n")
+		console.PrintlnBlue("\rGood: Network connectivity detection is ok\n")
 	}
 	// 配置
 	sysConfig := configs.Get()
@@ -146,7 +147,7 @@ func NewConsoleServer(logger *zap.Logger, ctx context.Context) (*Server, error) 
 }
 
 func (s *Server) CleanData() {
-	s.console.PrintlnYellow("\r---> 是否需要删除音频和对话数据[y/n]")
+	s.console.PrintlnYellow("\r---> 如需要删除音频和对话数据，请输入[y/n]")
 	str := ""
 	s.console.GetInput(&str)
 	for {
@@ -159,7 +160,7 @@ func (s *Server) CleanData() {
 		} else if str == "n" {
 			os.Exit(0)
 		} else {
-			s.console.PrintlnRed("\r--->输入错误,请重新输入")
+			s.console.Print("\r---> 输入错误,请重新输入")
 			s.console.GetInput(&str)
 		}
 	}
@@ -198,6 +199,7 @@ func (s *Server) keyboardEvent() bool {
 				manaudio.WithDataRecordDir(sysConfig.File.Audio.Record.Path),
 				manaudio.WithDataPlayDir(sysConfig.File.Audio.Play.Path),
 				manaudio.WithAudioHost(sysConfig.File.Audio.Play.TtsHost),
+				manaudio.WithEnablePlay(sysConfig.File.Audio.Play.Enable),
 			)
 
 			rocketServer, err := rocket.New(s.logger,
@@ -230,12 +232,11 @@ func (s *Server) keyboardEvent() bool {
 	hook.Register(hook.KeyDown, []string{"esc"}, func(e hook.Event) {
 		if s.menuId == startMenu {
 			s.console.PrintlnRed("\r---> SpokenAI之旅已结束,请按Ctrl+C关闭程序,希望您再次使用")
-			s.CleanData()
-			flag = true
-			hook.End()
-		} else if s.menuId == 1 {
-			s.La.Close()    //备份聊天纪录
-			s.Audio.Close() //备份音频记录
+			s.console.PrintlnYellow("\r---> 如需要删除音频和对话数据,请按Y或者N键")
+			s.menuId = endMenu
+		} else if s.menuId == speakMenu {
+			go s.La.Close()    //备份聊天纪录
+			go s.Audio.Close() //备份音频记录
 			s.menuId = startMenu
 			s.console.PrintlnBlue(start)
 			hook.End()
@@ -307,6 +308,27 @@ func (s *Server) keyboardEvent() bool {
 	hook.Register(hook.KeyDown, []string{"t"}, func(e hook.Event) {
 		s.console.PrintlnBlue(fmt.Sprintf("MenuId = %d", s.menuId))
 		hook.End()
+	})
+
+	hook.Register(hook.KeyDown, []string{"y"}, func(e hook.Event) {
+		if s.menuId == endMenu {
+			if err := s.cleantool.ClearAllData(); err != nil {
+				s.logger.Error("Clear AllData Failed", zap.String("error", fmt.Sprintf("%+v", err)))
+				s.console.PrintlnRed("\r---> 删除数据失败,请手动删除data目录下的数据")
+			} else {
+				s.console.PrintlnBlue("\r---> 删除数据成功")
+			}
+			s.console.PrintlnRed("\r---> SpokenAI之旅已结束,请按Ctrl+C关闭程序,希望您再次使用")
+			flag = true
+			hook.End()
+		}
+	})
+	hook.Register(hook.KeyDown, []string{"n"}, func(e hook.Event) {
+		if s.menuId == endMenu {
+			s.console.PrintlnRed("\r---> SpokenAI之旅已结束,请按Ctrl+C关闭程序,希望您再次使用")
+			flag = true
+			hook.End()
+		}
 	})
 
 	e := hook.Start()

@@ -25,10 +25,6 @@ func main() {
 		panic(err)
 	}
 
-	if err != nil {
-		panic(err)
-	}
-
 	defer func() {
 		_ = accessLogger.Sync()
 	}()

@@ -68,9 +68,11 @@ func WithEnablePlay(enable bool) Option {
 }
 
 type Manager struct {
-	logger    *zap.Logger
-	opt       *option
-	count     int //该用户录制次数
+	logger      *zap.Logger
+	opt         *option
+	recordCount int //该用户录制次数
+	playCount   int //该用户的音频生成次数
+
 	ttsclient *tts.TTSClient
 }
 
@@ -84,18 +86,18 @@ func NewManager(logger *zap.Logger, options ...Option) (*Manager, error) {
 		f(opt)
 	}
 	c := tts.NewTTSClient(opt.audiohost)
-	return &Manager{logger: logger, opt: opt, count: 0, ttsclient: c}, nil
+	return &Manager{logger: logger, opt: opt, recordCount: 0, ttsclient: c}, nil
 
 }
 func (m *Manager) getListFilePath(flag int) []string {
 	list := []string{}
 	switch flag {
 	case 1:
-		for i := 1; i <= m.count; i++ {
+		for i := 1; i <= m.recordCount; i++ {
 			list = append(list, m.opt.dataRecordDir+m.opt.userId+"_"+m.opt.roleId+"_"+strconv.Itoa(i)+".wav")
 		}
 	case 2:
-		for i := 1; i <= m.count; i++ {
+		for i := 1; i <= m.playCount; i++ {
 			list = append(list, m.opt.dataPlayDir+m.opt.userId+"_"+m.opt.roleId+"_"+strconv.Itoa(i)+".wav")
 		}
 	}
@@ -105,23 +107,23 @@ func (m *Manager) getListFilePath(flag int) []string {
 
 // 记录音频输入
 func (m *Manager) RecordAudio(sig <-chan struct{}) {
-	m.count += 1
+	m.recordCount += 1
 	filepath := m.GetRecordAudio()
 	praudio.RecordAndSaveWithContext(context.Background(), filepath)
 }
 
 // 记录音频输入
 func (m *Manager) RecordAudioWithContext(ctx context.Context, sig <-chan struct{}) {
-	m.count += 1
+	m.recordCount += 1
 	filepath := m.GetRecordAudio()
 	praudio.RecordAndSaveWithContext(ctx, filepath)
 }
 
 func (m *Manager) GetRecordAudio() string {
-	return m.opt.dataRecordDir + m.opt.userId + "_" + m.opt.roleId + "_" + strconv.Itoa(m.count) + ".wav"
+	return m.opt.dataRecordDir + m.opt.userId + "_" + m.opt.roleId + "_" + strconv.Itoa(m.recordCount) + ".wav"
 }
 func (m *Manager) GetPlayAudio() string {
-	return m.opt.dataPlayDir + m.opt.userId + "_" + m.opt.roleId + "_" + strconv.Itoa(m.count) + ".wav"
+	return m.opt.dataPlayDir + m.opt.userId + "_" + m.opt.roleId + "_" + strconv.Itoa(m.playCount) + ".wav"
 }
 
 // 播放音频文件
@@ -147,6 +149,7 @@ func (m *Manager) CallTTSserver(text string) error {
 		m.logger.Error("Call TTSserver error:", zap.String("error", fmt.Sprintf("%+v", err)))
 		return err
 	}
+	m.playCount += 1
 	return nil
 }
 
