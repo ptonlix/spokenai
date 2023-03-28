@@ -29,7 +29,7 @@ through which you can have conversations with AI teachers and improve
 your English speaking skills.
 
 作者/author: Baird
-联系作者/Contact the author:
+联系作者/Contact the author: wechat:cfd0917
 `
 
 func PrintLogo(w io.Writer) {

@@ -3,7 +3,6 @@ package configs
 import (
 	"bytes"
 	_ "embed"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -137,7 +136,6 @@ func init() {
 	if err := viper.Unmarshal(config); err != nil {
 		panic(err)
 	}
-	fmt.Println(config)
 	viper.SetConfigName(env.Active().Value() + "_configs")
 	viper.AddConfigPath("./configs")
 

@@ -3,9 +3,12 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/ptonlix/spokenai/configs"
 	"github.com/ptonlix/spokenai/internal/engine/console"
+	"github.com/ptonlix/spokenai/internal/pkg/clean"
+	"github.com/ptonlix/spokenai/internal/pkg/logo"
 	"github.com/ptonlix/spokenai/pkg/env"
 	"github.com/ptonlix/spokenai/pkg/logger"
 	"github.com/ptonlix/spokenai/pkg/shutdown"
@@ -25,6 +28,10 @@ func main() {
 		panic(err)
 	}
 
+	ClearData(accessLogger)
+
+	ShowQr()
+
 	defer func() {
 		_ = accessLogger.Sync()
 	}()
@@ -41,4 +48,33 @@ func main() {
 			s.Close()
 		},
 	)
+}
+
+func ClearData(logger *zap.Logger) {
+	if !env.ClearDataFlag() {
+		return
+	}
+	sysConfig := configs.Get()
+	tool, err := clean.NewCleaner(logger,
+		clean.WithDataChatDir(sysConfig.File.History.Path),
+		clean.WithDataPlayDir(sysConfig.File.Audio.Play.Path),
+		clean.WithDataRecordDir(sysConfig.File.Audio.Record.Path),
+	)
+	if err != nil {
+		logger.Error("New Cleaner error: ", zap.String("error", fmt.Sprintf("%+v", err)))
+		panic(err)
+	}
+	if err := tool.ClearAllData(); err != nil {
+		logger.Error("Clear AllData Failed", zap.String("error", fmt.Sprintf("%+v", err)))
+		panic(err)
+	}
+	os.Exit(0)
+}
+
+func ShowQr() {
+	if !env.WxqrShowFlag() {
+		return
+	}
+	logo.PrintQrcode()
+	os.Exit(0)
 }

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"strconv"
-	"time"
 	"unicode"
 
 	"github.com/ptonlix/spokenai/configs"
@@ -120,12 +119,10 @@ func NewConsoleServer(logger *zap.Logger, ctx context.Context) (*Server, error) 
 
 	// 展示说明
 	logo.PrintIntroduce(os.Stdout)
-	time.Sleep(time.Second * 3)
-	logo.PrintQrcode()
 
 	// 检测网络
 	console := io.NewIoer()
-	go console.SlowPrint("Testing network.................")
+	go console.SlowPrint("\nTesting network.................")
 	if !nettest.GetResult(logger) {
 		console.PrintlnRed("\r错误: 网络连通性检测失败，请检查日志")
 		return nil, errors.New("network link failed")

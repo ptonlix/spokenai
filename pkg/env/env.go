@@ -2,7 +2,6 @@ package env
 
 import (
 	"flag"
-	"fmt"
 	"strings"
 )
 
@@ -12,6 +11,11 @@ var (
 	fat    Environment = &environment{value: "fat"}
 	uat    Environment = &environment{value: "uat"}
 	pro    Environment = &environment{value: "pro"}
+)
+
+var (
+	wxqrShow  *bool
+	clearData *bool
 )
 
 var _ Environment = (*environment)(nil)
@@ -53,7 +57,10 @@ func (e *environment) IsPro() bool {
 func (e *environment) t() {}
 
 func init() {
-	env := flag.String("env", "", "请输入运行环境:\n dev:开发环境\n fat:测试环境\n uat:预上线环境\n pro:正式环境\n")
+	env := flag.String("env", "", "请输入运行环境:\n dev:开发环境\n fat:测试环境\n uat:预上线环境\n pro:正式环境\n default:fat:测试环境 \n")
+	clearData = flag.Bool("clear", false, "清除data目录下的用户数据\n")
+	wxqrShow = flag.Bool("qr", false, "显示作者微信二维码 ^_^\n")
+
 	flag.Parse()
 
 	switch strings.ToLower(strings.TrimSpace(*env)) {
@@ -67,11 +74,18 @@ func init() {
 		active = pro
 	default:
 		active = fat
-		fmt.Println("Warning: '-env' cannot be found, or it is illegal. The default 'fat' will be used.")
 	}
 }
 
 // Active 当前配置的env
 func Active() Environment {
 	return active
+}
+
+func ClearDataFlag() bool {
+	return *clearData
+}
+
+func WxqrShowFlag() bool {
+	return *wxqrShow
 }
